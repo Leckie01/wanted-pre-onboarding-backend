@@ -1,7 +1,10 @@
 const express = require("express");
 const sequelize = require("./dbConfig");
 const { body, validationResult } = require("express-validator");
+const userValidates = require("./validates/user.validate");
+
 const User = require("./entities/User");
+const validateParameters = require("./validates");
 
 // * 모델 영역
 require("./entities/User");
@@ -38,47 +41,21 @@ server.use((err, req, res, next) => {
 });
 
 // * routes 영역
-
 // 사용자: 회원가입
-server.post(
-  "/users/signup",
-  // 유효성 체크
-  [
-    body("email")
-      .notEmpty()
-      .withMessage("이메일을 입력해주세요.")
-      .custom((email) => {
-        const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
-        if (!emailRegex.test(email)) {
-          throw new Error("유효한 이메일 형식으로 입력해주세요.");
-        }
-        return true;
-      }),
-    body("password")
-      .notEmpty()
-      .withMessage("비밀번호를 입력해주세요.")
-      .isLength({ min: 8 })
-      .withMessage("비밀번호는 8자 이상 입력해주세요."),
-  ],
-  async (req, res) => {
-    const validResult = validationResult(req);
+server.post("/users/signup", userValidates.signup, async (req, res) => {
+  validateParameters(req, res);
 
-    if (!validResult.isEmpty()) {
-      return res.status(400).json({ errors: validResult.array() });
-    }
+  const { email, password } = req.body;
 
-    const { email, password } = req.body;
-
-    const existUser = await User.findOne({ where: { email } });
-    if (existUser) {
-      return res.status(400).json({ errors: "이미 존재하는 이메일입니다." });
-    }
-
-    const user = await User.create({ email, password });
-
-    return res.json({ user, message: "정상적으로 회원가입되었습니다." });
+  const existUser = await User.findOne({ where: { email } });
+  if (existUser) {
+    return res.status(400).json({ errors: "이미 존재하는 이메일입니다." });
   }
-);
+
+  const user = await User.create({ email, password });
+
+  return res.json({ user, message: "정상적으로 회원가입되었습니다." });
+});
 
 server.listen(process.env.PORT, () =>
   console.log(`Server listening on port ${process.env.PORT}`)
