@@ -68,7 +68,7 @@
 
 # API 명세
 
-API 명세는 [Postman documantation 링크](https://documenter.getpostman.com/view/12779641/2s9XxyRZGq)에서 확인할 수 있습니다.
+API 명세는 [Postman documentation 링크](https://documenter.getpostman.com/view/12779641/2s9XxyRZGq)에서 확인할 수 있습니다.
 <br/><br/>
 
 # AWS 설계도
